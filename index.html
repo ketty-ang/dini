@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Avisos - Finanzas</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="login-header">
+            <h1 class="titulo" id="titulo">AVISOS Y FINANZAS</h1>
+        </div>
+
+        <!-- Formulario login -->
+        <div class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="email">Correo Electrónido</label>
+                <input type="email" id="email" placeholder="Ingresa tu correo electrónico" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="La contraseña debe tener al menos 6 caracteres"> 
+            </div>
+            <button class="login-button" id="loginButton">Iniciar Seción</button>
+            <div class="register-link">
+                ¿No tienes una cuenta? <a href="#">Regístrate Aquí</a>
+            </div>
+        </div>
+
+        <!-- Panel de usuario (oculto inicialmente) -->
+        <div class="user-dashboard" id="userDashboard" style="display: none;">
+            <div>
+                <div class="container">
+                    <!-- Tabs de navegación -->
+                    <div class="tabs">
+                        <button class="tab-btn" onclick="cambiarTab('avisos-diarios')">Avisos Diarios</button>
+                        <button class="tab-btn active" onclick="cambiarTab('reportes-financieros')">Reportes Financieros</button>
+                    </div>
+
+                    <!-- Tab Avisos Diarios -->
+                    <div id="avisos-diarios" class="tab-content">
+                        <div class="avisos-diarios">
+                            <h2>Avisos del día</h2>
+                            <div class="filtro-fecha">
+                                <label for="fecha-avisos">Fecha:</label>
+                                <input type="date" id="fecha-avisos" value="2025-05-12">
+                                <button class="btn btn-primario" onclick="cargarAvisosPorFecha()">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                     <div id="contenedor-tabla-avisos">
+                <table class="tabla-avisos" id="tabla-avisos-diarios">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Dirección</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-tabla-avisos">
+                        <!-- Se llenará dinámicamente -->
+                    </tbody>
+                </table>
+                <div id="sin-avisos" class="sin-datos" style="display: none;">
+                    No hay avisos registrados para esta fecha
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón flotante para agregar nuevo aviso -->
+    <div class="btn-flotante" onclick="abrirModalAviso()">+</div>
+
+    <!-- Modal para Nuevo/Editar Aviso -->
+    <div id="modal-aviso" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-cabecera">
+                <h3 id="titulo-modal-aviso">Nuevo Aviso</h3>
+                <button class="cerrar-modal" onclick="cerrarModalAviso()">&times;</button>
+            </div>
+            <form id="formulario-aviso" onsubmit="guardarAviso(event)">
+                <input type="hidden" id="id-aviso" value="">
+                
+                <div class="grupo-formulario">
+                    <label for="hora-aviso">Hora:</label>
+                    <input type="time" id="hora-aviso" required>
+                </div>
+                
+                <div class="grupo-formulario">
+                    <label for="cliente-aviso">Cliente:</label>
+                    <input type="text" id="cliente-aviso" required>
+                </div>
+                
+                <div class="grupo-formulario">
+                    <label for="telefono-aviso">Teléfono:</label>
+                    <input type="tel" id="telefono-aviso" required>
+                </div>
+                
+                <div class="grupo-formulario">
+                    <label for="email-aviso">Email:</label>
+                    <input type="email" id="email-aviso">
+                </div>
+                
+                <div class="grupo-formulario">
+                    <label for="direccion-aviso">Dirección:</label>
+                    <input type="text" id="direccion-aviso" required>
+                </div>
+                
+                <div class="grupo-formulario">
+                    <label for="descripcion-aviso">Descripción:</label>
+                    <textarea id="descripcion-aviso" required></textarea>
+                </div>
+                
+                <div class="grupo-formulario">
+                    <label for="estado-aviso">Estado:</label>
+                    <select id="estado-aviso" required>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="realizado">Realizado</option>
+                        <option value="anulado">Anulado</option>
+                    </select>
+                </div>
+                
+                <div class="modal-pie">
+                    <button type="button" class="btn btn-secundario" onclick="cerrarModalAviso()">Cancelar</button>
+                    <button type="submit" class="btn btn-primario">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+
+    </div>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="mi-aplicacion/funciones.js"></script>
+</body>
+</html>

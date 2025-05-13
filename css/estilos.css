@@ -1,0 +1,459 @@
+ * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .login-header h1.titulo {
+      text-align: center;
+      font-size: 2.5rem;
+      color: white;
+      margin-bottom: 30px;
+      background-color: #0056b3;
+    }
+
+    .login-form {
+      background-color: #fff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .login-button,
+    .logout-button,
+    .btn {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin: 10px 0;
+    }
+
+    .login-button:hover,
+    .logout-button:hover,
+    .btn:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .btn-secundario {
+      background-color: #6c757d;
+    }
+
+    .btn-secundario:hover {
+      background-color: #5a6268;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .user-dashboard {
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .Bienvenido-mensaje {
+      font-size: 1.5rem;
+      margin-top: 20px;
+    }
+
+    .tabla-avisos {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .tabla-avisos th,
+    .tabla-avisos td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .tabla-avisos th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .filtro-fecha {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    #sin-avisos {
+      margin-top: 20px;
+      font-style: italic;
+      color: #777;
+    }
+
+    @media (max-width: 768px) {
+      .login-form {
+        padding: 20px;
+        max-width: 100%;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .login-header h1.titulo {
+        font-size: 2rem;
+      }
+
+      .tabla-avisos th,
+      .tabla-avisos td {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+
+      .filtro-fecha {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .login-button,
+      .logout-button,
+      .btn {
+        width: 100%;
+        font-size: 1rem;
+        padding: 14px;
+      }
+
+      .user-dashboard {
+        padding: 10px;
+      }
+    }
+      /* Tabs de navegación */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            margin-right: 5px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .tab-btn.active {
+            background-color: white;
+            border-bottom: 2px solid white;
+            margin-bottom: -1px;
+            color: #1e3a8a;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        /* estilos para la pagina avisos
+         .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primario {
+            background-color: #1e3a8a;
+            color: white;
+        }
+        
+        .btn-primario:hover {
+            background-color: #172b6a;
+        }
+        
+        .btn-secundario {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secundario:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Estilos para la sección de avisos diarios */
+        table{
+            display: none;
+        }
+        .avisos-diarios {
+            margin-bottom: 30px;
+        }
+
+        .avisos-diarios h2 {
+            color: #1e3a8a;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .filtro-fecha {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tabla-avisos {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .tabla-avisos th, .tabla-avisos td {
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            text-align: left;
+        }
+
+        .tabla-avisos th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+
+        .badge {
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-pendiente {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-realizado {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-anulado {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Estilos para acciones en tabla */
+        .accion-btn {
+            color: #1e3a8a;
+            text-decoration: none;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        
+        .contacto {
+            color: #1e3a8a;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-contenido {
+            background-color: white;
+            border-radius: 5px;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .modal-cabecera {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-cabecera h3 {
+            margin: 0;
+            color: #1e3a8a;
+        }
+        
+        .cerrar-modal {
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        
+        .grupo-formulario {
+            margin-bottom: 15px;
+        }
+        
+        .grupo-formulario label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .grupo-formulario input, 
+        .grupo-formulario textarea,
+        .grupo-formulario select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .grupo-formulario textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .modal-pie {
+            padding-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .sin-datos {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #010101;
+        }
+        
+        /* Estilos para el boton de nuevo aviso */
+        .btn-flotante {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #1e3a8a;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-flotante:hover {
+            background-color: #172b6a;
+        }
+        
+        /* Estilos para los iconos de acción */
+        .icono {
+            margin-right: 5px;
+        }
+       .tabla-avisos{
+        display: none;
+       }
+       
