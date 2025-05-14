@@ -219,56 +219,7 @@
         .tab-content.active {
             display: block;
         }
-        /* estilos para la pagina avisos
-         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background-color: #1e3a8a;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-        
-        .btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-primario {
-            background-color: #1e3a8a;
-            color: white;
-        }
-        
-        .btn-primario:hover {
-            background-color: #172b6a;
-        }
-        
-        .btn-secundario {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .btn-secundario:hover {
-            background-color: #5a6268;
-        }
-        
-        /* Estilos para la sección de avisos diarios */
+
         table{
             display: none;
         }
@@ -386,6 +337,29 @@
             border: none;
             background: none;
         }
+        /* Estilos responsive para el modal */
+@media (max-width: 768px) {
+    .modal-contenido {
+        width: 95%;
+        margin: 10px auto;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .grupo-formulario {
+        margin-bottom: 10px;
+    }
+    
+    .grupo-formulario label {
+        font-size: 0.9rem;
+    }
+    
+    
+    .modal-pie .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
         
         .grupo-formulario {
             margin-bottom: 15px;
@@ -417,6 +391,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
+           
         }
         
         .sin-datos {
@@ -453,4 +428,55 @@
         .icono {
             margin-right: 5px;
         }
+        /* Añade esto al final de tu archivo CSS */
+.tarjeta-aviso {
+    display: none; /* Oculto por defecto en escritorio */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.tarjeta-aviso .aviso-cabecera {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.tarjeta-aviso .aviso-datos {
+    margin-bottom: 10px;
+}
+
+.tarjeta-aviso .aviso-dato {
+    margin-bottom: 8px;
+}
+
+.tarjeta-aviso .aviso-dato span {
+    font-weight: bold;
+}
+
+.tarjeta-aviso .aviso-acciones {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Estilos responsivos para cambiar entre tabla y tarjetas */
+@media (max-width: 768px) {
+    .tabla-avisos {
+        display: none !important; /* Ocultar tabla en móviles */
+    }
+    
+    .tarjeta-aviso {
+        display: block; /* Mostrar tarjetas en móviles */
+    }
+    
+    .sin-datos {
+        display: block !important; /* Asegurar que el mensaje sin datos siempre sea visible */
+    }
+}
     

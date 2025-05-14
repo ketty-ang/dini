@@ -38,15 +38,19 @@ loginButton.addEventListener('click', function (event) {
         tituloh1.textContent = 'Sistema de Gestión de Avisos - Finanzas';
     }
 });
+//funcion para el boton flotante
 
 function cambiarTab(tabId) {
+      // Ocultar todos los contenidos de pestañas
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
+        // Quitar clase active de todos los botones
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
+      // Mostrar la pestaña seleccionada
     document.getElementById(tabId).classList.add('active');
 
     if (tabId === 'avisos-diarios') {
@@ -87,8 +91,11 @@ function actualizarTablaAvisos() {
     const cuerpoTabla = document.getElementById('cuerpo-tabla-avisos');
     const sinAvisos = document.getElementById('sin-avisos');
     const tablaAvisos = document.getElementById('tabla-avisos-diarios');
-
+    const contenedorTarjetas = document.getElementById('contenedor-tarjetas-avisos');
+    
+    // Limpiar tabla y tarjetas
     cuerpoTabla.innerHTML = '';
+    contenedorTarjetas.innerHTML = '';
 
     if (avisosFiltrados.length === 0) {
         sinAvisos.style.display = 'block';
@@ -105,8 +112,9 @@ function actualizarTablaAvisos() {
                 a.telefono === aviso.telefono
             );
 
+            // Crear fila de tabla para vista desktop
             const fila = document.createElement('tr');
-
+            
             if (aviso.estado === 'realizado') fila.classList.add('aviso-realizado');
             else if (aviso.estado === 'anulado') fila.classList.add('aviso-anulado');
 
@@ -136,8 +144,46 @@ function actualizarTablaAvisos() {
                     <a onclick="eliminarAviso(${indiceReal})" class="accion-btn">🗑️</a>
                 </td>
             `;
-
+            
             cuerpoTabla.appendChild(fila);
+            
+            // Crear tarjeta para vista móvil
+            const tarjeta = document.createElement('div');
+            tarjeta.className = 'tarjeta-aviso';
+            if (aviso.estado === 'realizado') tarjeta.classList.add('aviso-realizado');
+            else if (aviso.estado === 'anulado') tarjeta.classList.add('aviso-anulado');
+            
+            tarjeta.innerHTML = `
+                <div class="aviso-cabecera">
+                    <h3>${aviso.cliente}</h3>
+                    <span class="badge ${badgeClass}">${estadoMostrar}</span>
+                </div>
+                <div class="aviso-datos">
+                    <div class="aviso-dato"><span>Hora:</span> ${aviso.hora}</div>
+                    <div class="aviso-dato">
+                        <span>Teléfono:</span> 
+                        <a href="tel:${aviso.telefono}" class="contacto">${aviso.telefono}</a>
+                    </div>
+                    <div class="aviso-dato">
+                        <span>Contactar:</span>
+                        <a href="tel:${aviso.telefono}" class="accion-btn">📞</a>
+                        <a href="sms:${aviso.telefono}" class="accion-btn">📱</a>
+                        <a href="https://wa.me/${aviso.telefono.replace(/\D/g, '')}" target="_blank" class="accion-btn">💬</a>
+                    </div>
+                    ${aviso.email ? `<div class="aviso-dato"><span>Email:</span> <a href="mailto:${aviso.email}" class="contacto">${aviso.email}</a></div>` : ''}
+                    <div class="aviso-dato">
+                        <span>Dirección:</span> 
+                        <a href="https://www.google.com/maps/search/${encodeURIComponent(aviso.direccion)}" target="_blank" class="contacto">${aviso.direccion}</a>
+                    </div>
+                    <div class="aviso-dato"><span>Descripción:</span> ${aviso.descripcion}</div>
+                </div>
+                <div class="aviso-acciones">
+                    <button onclick="editarAviso(${indiceReal})" class="btn btn-primario">Editar</button>
+                    <button onclick="eliminarAviso(${indiceReal})" class="btn btn-secundario">Eliminar</button>
+                </div>
+            `;
+            
+            contenedorTarjetas.appendChild(tarjeta);
         });
     }
 }
