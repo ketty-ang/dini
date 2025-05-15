@@ -34,6 +34,7 @@ loginButton.addEventListener('click', function (event) {
 
     if (isValid) {
         loginForm.style.display = 'none';
+    
         userDashboard.style.display = 'block';
         tituloh1.textContent = 'Sistema de Gestión de Avisos - Finanzas';
     }
@@ -41,22 +42,36 @@ loginButton.addEventListener('click', function (event) {
 //funcion para el boton flotante
 
 function cambiarTab(tabId) {
-      // Ocultar todos los contenidos de pestañas
+    // Ocultar todos los contenidos de pestañas
     document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
+        tab.style.display = 'none';
     });
-        // Quitar clase active de todos los botones
+    
+    // Quitar clase active de todos los botones
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
-      // Mostrar la pestaña seleccionada
-    document.getElementById(tabId).classList.add('active');
-
+    // Mostrar la pestaña seleccionada
+    document.getElementById(tabId).style.display = 'block';
+    
+    // Cerrar el modal de aviso si está abierto (solo si no estás en la pestaña de "avisos-diarios")
+    const modalAviso = document.getElementById('modal-aviso');
+    if (modalAviso && tabId !== 'avisos-diarios') {
+        modalAviso.style.display = 'none';
+    }
+    
+    // Botón flotante (solo visible en la pestaña de avisos diarios)
+    const btnFlotante = document.querySelector('.btn-flotante');
+    
     if (tabId === 'avisos-diarios') {
         document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        // Mostrar el botón flotante solo en la pestaña de avisos
+        if (btnFlotante) btnFlotante.style.display = 'flex';
     } else {
         document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        // Ocultar el botón flotante en otras pestañas
+        if (btnFlotante) btnFlotante.style.display = 'none';
     }
 }
 
@@ -66,6 +81,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const hoy = new Date();
     const fechaFormateada = hoy.toISOString().split('T')[0];
     document.getElementById('fecha-avisos').value = fechaFormateada;
+    
+    // Configurar pestaña inicial (avisos diarios)
+    document.getElementById('avisos-diarios').style.display = 'block';
+    document.getElementById('reportes-financieros').style.display = 'none';
+     document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    
+    // Configurar botón flotante (visible solo en avisos diarios)
+    const btnFlotante = document.querySelector('.btn-flotante');
+    if (btnFlotante) btnFlotante.style.display = 'flex';
+    
     cargarAvisosGuardados();
 });
 
@@ -140,8 +165,8 @@ function actualizarTablaAvisos() {
                 <td>${aviso.descripcion}</td>
                 <td><span class="badge ${badgeClass}">${estadoMostrar}</span></td>
                 <td>
-                    <a onclick="editarAviso(${indiceReal})" class="accion-btn">✏️</a>
-                    <a onclick="eliminarAviso(${indiceReal})" class="accion-btn">🗑️</a>
+                    <a onclick="editarAviso(${indiceReal})" class="accion-btn">Editar✏️</a>
+                    <a onclick="eliminarAviso(${indiceReal})" class="accion-btn">Eliminar🗑️</a>
                 </td>
             `;
             
@@ -256,4 +281,87 @@ function eliminarAviso(index) {
         actualizarTablaAvisos();
         alert('Aviso eliminado correctamente');
     }
+}
+function buscarPorTelefono() {
+
+    const telefono = document.getElementById('busqueda-telefono').value.trim();
+    const cuerpoTabla = document.getElementById('cuerpo-tabla-resultados');
+    const contenedorTarjetas = document.getElementById('tarjetas-resultados');
+    const resultadosDiv = document.getElementById('resultados-busqueda');
+
+    // Limpiar contenido previo
+    cuerpoTabla.innerHTML = '';
+    contenedorTarjetas.innerHTML = '';
+    resultadosDiv.innerHTML = '';  // Limpiar mensajes previos
+
+    // Ocultar inicialmente ambos contenedores
+    document.getElementById('tabla-resultados').style.display = 'none';
+    document.getElementById('tarjetas-resultados').style.display = 'none';
+
+    if (!telefono) {
+        resultadosDiv.innerHTML = '<p class="mensaje-error">Ingrese un número de teléfono para buscar.</p>';
+        return;
+    }
+
+    const avisosEncontrados = avisos.filter(aviso =>
+        aviso.telefono.includes(telefono)
+    );
+
+    if (avisosEncontrados.length === 0) {
+        resultadosDiv.innerHTML = '<p class="mensaje-info">No se encontraron avisos con ese número de teléfono.</p>';
+        return;
+    }
+    if (window.innerWidth > 767) {  // Pantallas mayores a 767px (no móvil)
+    document.getElementById('tabla-resultados').style.display = 'table';
+} else {
+    document.getElementById('tabla-resultados').style.display = 'none';
+}
+
+document.getElementById('tarjetas-resultados').style.display = 'flex';
+
+    // Mostrar los contenedores si hay resultados
+    
+    document.getElementById('tarjetas-resultados').style.display = 'flex';
+
+    avisosEncontrados.forEach(aviso => {
+        const badgeClass = {
+            pendiente: 'badge-pendiente',
+            realizado: 'badge-realizado',
+            anulado: 'badge-anulado'
+        }[aviso.estado] || '';
+
+        const estadoMostrar = aviso.estado.charAt(0).toUpperCase() + aviso.estado.slice(1);
+
+        // Fila para escritorio
+    
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+           <td>${aviso.fecha}</td>
+            <td>${aviso.cliente}</td>
+            <td><a href="tel:${aviso.telefono}" class="contacto">${aviso.telefono}</a></td>
+            <td>${aviso.email ? `<a href="mailto:${aviso.email}" class="contacto">${aviso.email}</a>` : '-'}</td>
+            <td><a href="https://www.google.com/maps/search/${encodeURIComponent(aviso.direccion)}" target="_blank" class="contacto">${aviso.direccion}</a></td>
+            <td>${aviso.descripcion}</td>
+            <td><span class="badge ${badgeClass}">${estadoMostrar}</span></td>
+        `;
+        cuerpoTabla.appendChild(fila);
+
+        // Tarjeta para móviles
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'tarjeta-aviso';
+        tarjeta.innerHTML = `
+            <div class="aviso-cabecera">
+                <h3>${aviso.cliente}</h3>
+                <span class="badge ${badgeClass}">${estadoMostrar}</span>
+            </div>
+            <div class="aviso-datos">
+                <div><strong>Fecha:</strong> ${aviso.fecha}</div>
+                <div><strong>Teléfono:</strong> <a href="tel:${aviso.telefono}" class="contacto">${aviso.telefono}</a></div>
+                ${aviso.email ? `<div><strong>Email:</strong> <a href="mailto:${aviso.email}" class="contacto">${aviso.email}</a></div>` : ''}
+                <div><strong>Dirección:</strong> <a href="https://www.google.com/maps/search/${encodeURIComponent(aviso.direccion)}" target="_blank">${aviso.direccion}</a></div>
+                <div><strong>Descripción:</strong> ${aviso.descripcion}</div>
+            </div>
+        `;
+        contenedorTarjetas.appendChild(tarjeta);
+    });
 }
