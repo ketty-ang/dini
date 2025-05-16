@@ -488,3 +488,25 @@
     gap: 1rem;
   }
 }
+/* Por defecto, ocultamos la tabla (para móvil) */
+#tabla-resultados {
+  display: none;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#tabla-resultados th, #tabla-resultados td {
+   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 8px;
+  word-wrap: break-word;
+  max-width: 200px;
+  white-space: normal;
+}
+
+/* Solo en pantallas anchas mostramos la tabla */
+@media (min-width: 768px) {
+  #tabla-resultados {
+    display: table;
+  }
+}
