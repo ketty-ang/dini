@@ -3,206 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Avisos - Finanzas</title>
+    <title>Dini App - Gestor de Avisos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
 </head>
-<body> 
-    <!-- Contenedor Principal de toda la aplicación -->
-    <div class="app-container"> 
-        <div class="login-header">
-            <!-- Titulo principal de la aplicación -->
-            <h1 class="titulo" id="titulo">AVISOS Y FINANZAS</h1> 
-        </div>
+<body>
 
-        <!-- Formulario login -->
-         <!-- Contenedor para el formulario login -->
-        <div class="login-form" id="loginForm">
-            <div class="form-group">
-                <!-- Etiqueta para el campo email -->
-                <label for="email">Correo Electrónico</label>
-                <input type="email" id="email" placeholder="Ingresa tu correo electrónico" required>
-            </div>
-            <div class="form-group">
-                <!-- Etiqueta para la contraseña -->
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" placeholder="La contraseña debe tener al menos 6 caracteres"> 
-            </div>
-            <!-- Boton para enviar el email y contraseña -->
-            <button class="login-button" id="loginButton">Iniciar Sesión</button>
-            <div class="register-link">
-                <!-- link para registrarte -->
-                ¿No tienes una cuenta? <a href="#">Regístrate Aquí</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="img/logo.png" alt="Dini App Logo" width="30" height="30" class="d-inline-block align-text-top">
+                Dini App
+            </a>
+            <div class="d-flex">
+                <input class="form-control me-2" type="search" id="buscador" placeholder="Buscar por NIE o Teléfono..." aria-label="Buscar">
+                <button class="btn btn-outline-success" type="button">Buscar</button>
+                <button class="btn btn-info text-white ms-2" id="btn-chat-global">Chat Global</button>
+                <button class="btn btn-secondary ms-2" id="btn-gestion-usuarios" style="display:none;">Gestión de Usuarios</button>
+                <button class="btn btn-success ms-2" id="btn-gestion-ps">Productos/Servicios</button>
+                <button class="btn btn-warning text-white ms-2" id="btn-informes">Informes</button>
             </div>
         </div>
+    </nav>
 
-        <!-- Panel de usuario esta es nuestra pagina despues de aver ingresado con el correo y la contraseña-->
-         <!-- panel que se muestra tras el login exitoso; inicialmente esta oculto -->
-        <div class="user-dashboard" id="userDashboard" style="display: none;">
-            <!-- Contenedor que esta en la parte que se oculta -->
-            <div class="container">
-                <!-- Tabs de navegación una pagina avisos diarios y otra reportes financieros-->
-                <div class="tabs">
-                    <!-- botones de pestañas de avisos diarios y de reportes financieros -->
-                    <button class="tab-btn active" onclick="cambiarTab('avisos-diarios')">Avisos Diarios</button>
-                    <button class="tab-btn" onclick="cambiarTab('reportes-financieros')">Reportes Financieros</button>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Columna de Avisos -->
+            <div class="col-md-4 border-end">
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <h4 class="mb-0">Avisos Pendientes</h4>
+                    <button class="btn btn-primary" id="btn-nuevo-aviso">+ Nuevo Aviso</button>
                 </div>
+                <div class="mb-3 px-3">
+                    <label for="filtroFecha" class="form-label visually-hidden">Filtrar por Fecha</label>
+                    <input type="date" class="form-control" id="filtroFecha">
+                </div>
+                <div id="lista-avisos" class="list-group list-group-flush">
+                    <!-- Los avisos se cargarán aquí con JS -->
+                    <p class="text-center p-3">Cargando avisos...</p>
+                </div>
+            </div>
 
-                <!-- Tab Avisos Diarios -->
-                <div id="avisos-diarios" class="tab-content">
-                  
-                    <!-- Sección de búsqueda por teléfono -->
-        <input type="text" id="busqueda-telefono" placeholder="Buscar por teléfono">
-<button onclick="buscarPorTelefono()">Buscar</button>
-<!-- contenedor para mostrar resultado de busquedas o mensajes -->
-<div id="resultados-busqueda"></div>
+            <!-- Columna de Detalles del Aviso -->
+            <div class="col-md-8">
+                <div id="detalle-aviso" class="p-3">
+                    <div class="text-center text-muted mt-5">
+                        <h5>Selecciona un aviso para ver los detalles</h5>
+                        <p>O crea un nuevo aviso.</p>
+                    </div>
+                    <!-- El contenido del aviso seleccionado se mostrará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
 
-<!-- Tabla para escritorio ojo especificamente escritorio-->
-<table id="tabla-resultados" style="display:none;">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Dirección</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <!-- aqui se insertan filas dinámicamente -->
-    <tbody id="cuerpo-tabla-resultados"></tbody>
-</table>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Verificar sesión al cargar la página
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('php/auth.php?action=checkSession');
+                const result = await response.json();
+                if (!result.success) {
+                    window.location.href = 'login.html'; // Redirigir al login si no hay sesión
+                }
+            } catch (error) {
+                console.error('Error al verificar sesión:', error);
+                window.location.href = 'login.html'; // Redirigir al login en caso de error de conexión
+            }
+        });
+    </script>
+    <script src="js/app.js"></script>
 
-<!-- Tarjetas para móvil -->
-<div id="tarjetas-resultados" style="display:none; flex-direction: column;"></div>
-            
-            <!-- Aquí se mostrarán los resultados de la búsqueda -->
-            <div id="resultados-busqueda"></div>
-        
-                    <div class="avisos-diarios">
-                        <!-- Titulo de sección de avisos del día -->
-                        <h2>Avisos del día</h2>
-                        <div class="filtro-fecha">
-                             <!-- Etiqueta de filtro por fecha -->
-                            <label for="fecha-avisos">Fecha:</label>
-                            <!-- Selector de fechas -->
-                            <input type="date" id="fecha-avisos" value="2025-05-12">
-                            <!-- Este boton busca los avisos por fecha seleccionada -->
-                            <button class="btn btn-primario" onclick="cargarAvisosPorFecha()">Buscar</button>
+    <!-- Modal para Nuevo Aviso -->
+    <div class="modal fade" id="nuevoAvisoModal" tabindex="-1" aria-labelledby="nuevoAvisoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nuevoAvisoModalLabel">Crear Nuevo Aviso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevoAviso">
+                        <h6>Datos del Cliente</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="clienteNombre" class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="clienteNombre" name="nombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clienteTelefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="clienteTelefono" name="telefono" required>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Contenedor principal para avisos diarios -->
-                    <div id="contenedor-tabla-avisos">
-                        <!-- Etiqueta tabla con avisos del día -->
-                        <table class="tabla-avisos" id="tabla-avisos-diarios">
-                            <thead>
-                                <tr>
-                                    <th>Hora</th>
-                                    <th>Cliente</th>
-                                    <th>Teléfono</th>
-                                    <th>Email</th>
-                                    <th>Dirección</th>
-                                    <th>Descripción</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cuerpo-tabla-avisos">
-                                <!-- Se llenará dinámicamente -->
-                            </tbody>
-                        </table>
-                     
-                        <!-- Nuevo contenedor para tarjetas en móvil -->
-    <div id="contenedor-tarjetas-avisos" class="tarjetas-avisos">
-        <!-- Aquí se generarán las tarjetas para móvil -->
-    </div>
-    
-    <div id="sin-avisos" class="sin-datos" style="display: none;">
-        <!-- Cuando no hay avisos nos va dar este mensaje -->
-        No hay avisos registrados para esta fecha
-    </div>
-</div>
-       </div>               
-                <!-- Tab Reportes Financieros -->
-                <div id="reportes-financieros" class="tab-content" style="display: none;">
-                      <!-- Contenido para reportes financieros (vacío por ahora) -->
-                  
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="clienteNIE" class="form-label">NIE/DNI</label>
+                                <input type="text" class="form-control" id="clienteNIE" name="nie">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clienteDireccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="clienteDireccion" name="direccion" required>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4">Datos del Aviso</h6>
+                        <div class="mb-3">
+                            <label for="avisoDescripcion" class="form-label">Descripción del Servicio</label>
+                            <textarea class="form-control" id="avisoDescripcion" name="descripcion" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="avisoFecha" class="form-label">Fecha del Servicio</label>
+                            <input type="date" class="form-control" id="avisoFecha" name="fecha_servicio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="avisoEstado" class="form-label">Estado Inicial</label>
+                            <select class="form-select" id="avisoEstado" name="estado">
+                                <option value="pendiente" selected>Pendiente</option>
+                                <option value="realizado">Realizado</option>
+                                <option value="anulado">Anulado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="avisoTecnico" class="form-label">Técnico Asignado</label>
+                            <select class="form-select" id="avisoTecnico" name="tecnico_asignado_id">
+                                <option value="">-- Seleccionar --</option>
+                                <!-- Opciones de técnicos se cargarán con JS -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="avisoPrioridad" class="form-label">Prioridad</label>
+                            <select class="form-select" id="avisoPrioridad" name="prioridad">
+                                <option value="baja">Baja</option>
+                                <option value="media" selected>Media</option>
+                                <option value="alta">Alta</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Aviso</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Botón flotante para agregar nuevo aviso por sierto me encanta :) -->
-        <div class="btn-flotante" onclick="abrirModalAviso()">+</div>
-
-        <!-- Modal para Nuevo/Editar Aviso -->
-        <div id="modal-aviso" class="modal">
-            <div class="modal-contenido">
-                <div class="modal-cabecera">
-                    <!-- Titulo dinámico del modal -->
-                    <h3 id="titulo-modal-aviso">Nuevo Aviso</h3>
-                    <!-- Botón para cerrar el modal -->
-                    <button class="cerrar-modal" onclick="cerrarModalAviso()">&times;</button>
+    <!-- Modal para Editar Aviso -->
+    <div class="modal fade" id="editarAvisoModal" tabindex="-1" aria-labelledby="editarAvisoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarAvisoModalLabel">Editar Aviso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="formulario-aviso" onsubmit="guardarAviso(event)">
-                    <input type="hidden" id="id-aviso" value="">
-                     
-                    <!-- Campo hora -->
-                    <div class="grupo-formulario">
-                        <label for="hora-aviso">Hora:</label>
-                        <input type="time" id="hora-aviso" required>
-                    </div>
-                    <!-- Campo cliente -->
-                    <div class="grupo-formulario">
-                        <label for="cliente-aviso">Cliente:</label>
-                        <input type="text" id="cliente-aviso" required>
-                    </div>
-                    <!-- Campo telefono -->
-                    <div class="grupo-formulario">
-                        <label for="telefono-aviso">Teléfono:</label>
-                        <input type="tel" id="telefono-aviso" required>
-                    </div>
-                    <!-- Campo Whatsapp -->
-                    <div class="grupo-formulario">
-                        <label for="whatsapp-aviso">WhatsApp:</label>
-                        <input type="tel" id="whatsapp-aviso" required>
-                    </div>
-                    <!-- Campo Email -->
-                    <div class="grupo-formulario">
-                        <label for="email-aviso">Email:</label>
-                        <input type="email" id="email-aviso">
-                    </div>
-                    <!-- Campo Dirección -->
-                    <div class="grupo-formulario">
-                        <label for="direccion-aviso">Dirección:</label>
-                        <input type="text" id="direccion-aviso" required>
-                    </div>
-                    <!-- Campo descripción -->
-                    <div class="grupo-formulario">
-                        <label for="descripcion-aviso">Descripción:</label>
-                        <textarea id="descripcion-aviso" required></textarea>
-                    </div>
-                    
-                    <div class="grupo-formulario">
-                        <label for="estado-aviso">Estado:</label>
-                        <select id="estado-aviso" required>
-                            <!-- Determinamos el estado del Aviso pendiente realizado o anulado  -->
-                            <option value="pendiente">Pendiente</option>
-                            <option value="realizado">Realizado</option>
-                            <option value="anulado">Anulado</option>
-                        </select>
-                    </div>
-                    
-                    <div class="modal-pie">
-                        <!-- Al finalizar tenemos los botones si decidimos guardar o nos arrepentimos :( -->
-                        <button type="button" class="btn btn-secundario" onclick="cerrarModalAviso()">Cancelar</button>
-                        <button type="submit" class="btn btn-primario">Guardar</button>
-                    </div>
-                </form>
+                <div class="modal-body">
+                    <form id="formEditarAviso">
+                        <input type="hidden" id="editAvisoId" name="id">
+                        <input type="hidden" id="editClienteId" name="cliente_id">
+                        <h6>Datos del Cliente</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editClienteNombre" class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="editClienteNombre" name="nombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editClienteTelefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="editClienteTelefono" name="telefono" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editClienteNIE" class="form-label">NIE/DNI</label>
+                                <input type="text" class="form-control" id="editClienteNIE" name="nie">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editClienteDireccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="editClienteDireccion" name="direccion" required>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-4">Datos del Aviso</h6>
+                        <div class="mb-3">
+                            <label for="editAvisoDescripcion" class="form-label">Descripción del Servicio</label>
+                            <textarea class="form-control" id="editAvisoDescripcion" name="descripcion" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvisoFecha" class="form-label">Fecha del Servicio</label>
+                            <input type="date" class="form-control" id="editAvisoFecha" name="fecha_servicio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvisoEstado" class="form-label">Estado</label>
+                            <select class="form-select" id="editAvisoEstado" name="estado">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="realizado">Realizado</option>
+                                <option value="anulado">Anulado</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvisoTecnico" class="form-label">Técnico Asignado</label>
+                            <select class="form-select" id="editAvisoTecnico" name="tecnico_asignado_id">
+                                <option value="">-- Seleccionar --</option>
+                                <!-- Opciones de técnicos se cargarán con JS -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvisoPrioridad" class="form-label">Prioridad</label>
+                            <select class="form-select" id="editAvisoPrioridad" name="prioridad">
+                                <option value="baja">Baja</option>
+                                <option value="media">Media</option>
+                                <option value="alta">Alta</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEstadoMotivo" class="form-label">Motivo del Cambio de Estado (Opcional)</label>
+                            <textarea class="form-control" id="editEstadoMotivo" name="motivo_cambio" rows="2"></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <!-- Scripts --> 
-        <script src="mi-aplicacion/funciones.js"></script>
     </div>
+
+    <!-- Modal para Chat Global -->
+    <div class="modal fade" id="globalChatModal" tabindex="-1" aria-labelledby="globalChatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="globalChatModalLabel">Chat Global de Técnicos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="global-chat-messages" class="border p-3 mb-3" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Los mensajes del chat global se cargarán aquí -->
+                        <p class="text-muted text-center">Cargando mensajes...</p>
+                    </div>
+                    <form id="formGlobalChatMensaje">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Escribe un mensaje..." id="globalChatMensajeTexto" name="mensaje" required>
+                            <button class="btn btn-primary" type="submit">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Gestión de Usuarios -->
+    <div class="modal fade" id="gestionUsuariosModal" tabindex="-1" aria-labelledby="gestionUsuariosModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gestionUsuariosModalLabel">Gestión de Usuarios</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-primary mb-3" id="btnNuevoUsuario">+ Nuevo Usuario</button>
+                    <div id="lista-usuarios" class="list-group mb-4">
+                        <!-- Los usuarios se cargarán aquí -->
+                        <p class="text-muted text-center">Cargando usuarios...</p>
+                    </div>
+
+                    <!-- Formulario para Crear/Editar Usuario -->
+                    <div id="formUsuarioContainer" class="card p-3 d-none">
+                        <h6 id="formUsuarioTitle">Crear Nuevo Usuario</h6>
+                        <form id="formUsuario">
+                            <input type="hidden" id="userId" name="id">
+                            <div class="mb-3">
+                                <label for="usernameUser" class="form-label">Nombre de Usuario</label>
+                                <input type="text" class="form-control" id="usernameUser" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="passwordUser" class="form-label">Contraseña (dejar vacío para no cambiar)</label>
+                                <input type="password" class="form-control" id="passwordUser" name="password">
+                            </div>
+                            <div class="mb-3">
+                                <label for="rolUser" class="form-label">Rol</label>
+                                <select class="form-select" id="rolUser" name="rol">
+                                    <option value="tecnico">Técnico</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                            <button type="button" class="btn btn-secondary ms-2" id="btnCancelarUsuario">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Gestión de Productos/Servicios -->
+    <div class="modal fade" id="gestionPSModal" tabindex="-1" aria-labelledby="gestionPSModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gestionPSModalLabel">Gestión de Productos y Servicios</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-primary mb-3" id="btnNuevoPS">+ Nuevo Producto/Servicio</button>
+                    <div id="lista-ps" class="list-group mb-4">
+                        <!-- Los productos/servicios se cargarán aquí -->
+                        <p class="text-muted text-center">Cargando productos/servicios...</p>
+                    </div>
+
+                    <!-- Formulario para Crear/Editar Producto/Servicio -->
+                    <div id="formPSContainer" class="card p-3 d-none">
+                        <h6 id="formPSTitle">Crear Nuevo Producto/Servicio</h6>
+                        <form id="formPS">
+                            <input type="hidden" id="psId" name="id">
+                            <div class="mb-3">
+                                <label for="psNombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="psNombre" name="nombre" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="psDescripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="psDescripcion" name="descripcion" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="psPrecio" class="form-label">Precio</label>
+                                <input type="number" step="0.01" class="form-control" id="psPrecio" name="precio" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="psTipo" class="form-label">Tipo</label>
+                                <select class="form-select" id="psTipo" name="tipo">
+                                    <option value="producto">Producto</option>
+                                    <option value="servicio">Servicio</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary ms-2" id="btnCancelarPS">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Informes -->
+    <div class="modal fade" id="informesModal" tabindex="-1" aria-labelledby="informesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="informesModalLabel">Informes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Avisos por Estado</h6>
+                    <div id="reporte-avisos-estado" class="border p-3 mb-4">
+                        <p class="text-muted text-center">Cargando informe...</p>
+                    </div>
+                    <!-- Aquí se pueden añadir más tipos de informes -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
