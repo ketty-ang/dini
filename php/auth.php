@@ -44,7 +44,7 @@ if (isset($_GET['action'])) {
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
                 // Verificar la contraseña hasheada
-                if (password_verify($password, $user['password'])) {
+                if (hash('sha256', $password) === $user['password']) {
                     // Contraseña correcta, iniciar sesión
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];

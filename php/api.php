@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL); // Reporta todos los errores
+ini_set('display_errors', 0); // No mostrar errores en la salida (para evitar SyntaxError en JS)
+
 require_once 'config.php';
 
 header('Content-Type: application/json');
@@ -12,66 +15,69 @@ $response = [
     'data' => null
 ];
 
-// Verificar si el usuario está autenticado
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['empresa_id']) || !isset($_SESSION['plan_type'])) {
-    $response['message'] = 'Acceso denegado. No autenticado o sesión incompleta.';
-    echo json_encode($response);
-    exit();
-}
-
-$empresa_id_actual = $_SESSION['empresa_id']; 
-$plan_type_actual = $_SESSION['plan_type'];
-
-// Función para verificar si el plan permite una característica
-function checkPlanFeature($feature) {
-    global $plan_type_actual;
-
-    $features_by_plan = [
-        'basico' => [
-            'max_avisos_anual' => 12,
-            'max_productos_servicios' => 5,
-            'max_reportes_financieros' => 1,
-            'adjuntar_fotos' => false,
-            'chat_tecnicos' => false,
-            'exportacion_datos' => false
-        ],
-        'profesional' => [
-            'max_avisos_anual' => 500,
-            'max_productos_servicios' => 50,
-            'max_reportes_financieros' => 12,
-            'adjuntar_fotos' => true,
-            'chat_tecnicos' => true,
-            'exportacion_datos' => true
-        ],
-        'ultimate' => [
-            'max_avisos_anual' => -1, // Ilimitado
-            'max_productos_servicios' => -1, // Ilimitado
-            'max_reportes_financieros' => -1, // Ilimitado
-            'adjuntar_fotos' => true,
-            'chat_tecnicos' => true,
-            'exportacion_datos' => true
-        ]
-    ];
-
-    if (isset($features_by_plan[$plan_type_actual][$feature])) {
-        return $features_by_plan[$plan_type_actual][$feature];
+try { // Iniciar bloque try para capturar excepciones
+    // Verificar si el usuario está autenticado
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['empresa_id']) || !isset($_SESSION['plan_type'])) {
+        $response['message'] = 'Acceso denegado. No autenticado o sesión incompleta.';
+        echo json_encode($response);
+        exit();
     }
-    return false; // Característica no definida para el plan
-}
 
-// Conectar a la base de datos
-$conexion = conectarDB();
+    $empresa_id_actual = $_SESSION['empresa_id']; 
+    $plan_type_actual = $_SESSION['plan_type'];
 
-if (!$conexion) {
-    $response['message'] = 'Error al conectar con la base de datos.';
-    echo json_encode($response);
-    exit();
-}
+    // Función para verificar si el plan permite una característica
+    function checkPlanFeature($feature) {
+        global $plan_type_actual;
 
-if (isset($_GET['action']) || isset($_POST['action'])) {
-    $action = $_GET['action'] ?? $_POST['action'];
+        $features_by_plan = [
+            'basico' => [
+                'max_avisos_anual' => 12,
+                'max_productos_servicios' => 5,
+                'max_reportes_financieros' => 1,
+                'adjuntar_fotos' => false,
+                'chat_tecnicos' => false,
+                'exportacion_datos' => false
+            ],
+            'profesional' => [
+                'max_avisos_anual' => 500,
+                'max_productos_servicios' => 50,
+                'max_reportes_financieros' => 12,
+                'adjuntar_fotos' => true,
+                'chat_tecnicos' => true,
+                'exportacion_datos' => true
+            ],
+            'ultimate' => [
+                'max_avisos_anual' => -1, // Ilimitado
+                'max_productos_servicios' => -1, // Ilimitado
+                'max_reportes_financieros' => -1, // Ilimitado
+                'adjuntar_fotos' => true,
+                'chat_tecnicos' => true,
+                'exportacion_datos' => true
+            ]
+        ];
 
-    switch ($action) {
+        if (isset($features_by_plan[$plan_type_actual][$feature])) {
+            return $features_by_plan[$plan_type_actual][$feature];
+        }
+        return false; // Característica no definida para el plan
+    }
+
+    // Conectar a la base de datos
+    // Asegurarse de que la función conectarDB() existe antes de llamarla
+    if (!function_exists('conectarDB')) {
+        throw new Exception('La función conectarDB() no está definida. Asegúrate de que config.php se incluye correctamente y no tiene errores.');
+    }
+    $conexion = conectarDB();
+
+    if (!$conexion) {
+        throw new Exception('Error al conectar con la base de datos. Verifica la configuración en config.php.');
+    }
+
+    if (isset($_GET['action']) || isset($_POST['action'])) {
+        $action = $_GET['action'] ?? $_POST['action'];
+
+        switch ($action) {
         case 'getAvisos':
             $dateFilter = $_GET['date'] ?? '';
             $searchTerm = $_GET['term'] ?? ''; 
@@ -733,13 +739,105 @@ if (isset($_GET['action']) || isset($_POST['action'])) {
             $response['data'] = $report_data;
             break;
 
+        case 'getClientes':
+            $sql = "SELECT id, nombre FROM clientes WHERE empresa_id = ? ORDER BY nombre ASC";
+            $stmt = $conexion->prepare($sql);
+            $stmt->bind_param("i", $empresa_id_actual);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $clientes = $result->fetch_all(MYSQLI_ASSOC);
+
+            $response['success'] = true;
+            $response['message'] = 'Clientes obtenidos correctamente.';
+            $response['data'] = $clientes;
+            break;
+
+        case 'pasarPresupuesto':
+            $aviso_id = isset($_GET['aviso_id']) ? intval($_GET['aviso_id']) : 0;
+
+            if ($aviso_id === 0) {
+                $response['message'] = 'ID de aviso no proporcionado.';
+                echo json_encode($response);
+                exit();
+            }
+
+            $sql = "SELECT a.descripcion, a.cliente_id, c.nombre as cliente_nombre, c.telefono, c.nie, c.direccion
+                    FROM avisos a
+                    JOIN clientes c ON a.cliente_id = c.id
+                    WHERE a.id = ? AND a.empresa_id = ?";
+            $stmt = $conexion->prepare($sql);
+            $stmt->bind_param("ii", $aviso_id, $empresa_id_actual);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $aviso = $result->fetch_assoc();
+
+            if ($aviso) {
+                // Redirigir a presupuestos.html con parámetros para pre-rellenar
+                $redirect_url = 'presupuestos.html?' . http_build_query([
+                    'cliente_id' => $aviso['cliente_id'],
+                    'descripcion' => $aviso['descripcion'],
+                    'cliente_nombre' => $aviso['cliente_nombre'],
+                    'cliente_telefono' => $aviso['telefono'],
+                    'cliente_nie' => $aviso['nie'],
+                    'cliente_direccion' => $aviso['direccion']
+                ]);
+                header('Location: ' . $redirect_url);
+                exit();
+            } else {
+                $response['message'] = 'Aviso no encontrado o no pertenece a la empresa.';
+            }
+            break;
+
+        case 'pasarFactura':
+            $aviso_id = isset($_GET['aviso_id']) ? intval($_GET['aviso_id']) : 0;
+
+            if ($aviso_id === 0) {
+                $response['message'] = 'ID de aviso no proporcionado.';
+                echo json_encode($response);
+                exit();
+            }
+
+            $sql = "SELECT a.descripcion, a.cliente_id, c.nombre as cliente_nombre, c.telefono, c.nie, c.direccion
+                    FROM avisos a
+                    JOIN clientes c ON a.cliente_id = c.id
+                    WHERE a.id = ? AND a.empresa_id = ?";
+            $stmt = $conexion->prepare($sql);
+            $stmt->bind_param("ii", $aviso_id, $empresa_id_actual);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $aviso = $result->fetch_assoc();
+
+            if ($aviso) {
+                // Redirigir a facturas.html con parámetros para pre-rellenar
+                $redirect_url = 'facturas.html?' . http_build_query([
+                    'cliente_id' => $aviso['cliente_id'],
+                    'descripcion' => $aviso['descripcion'],
+                    'cliente_nombre' => $aviso['cliente_nombre'],
+                    'cliente_telefono' => $aviso['telefono'],
+                    'cliente_nie' => $aviso['nie'],
+                    'cliente_direccion' => $aviso['direccion']
+                ]);
+                header('Location: ' . $redirect_url);
+                exit();
+            } else {
+                $response['message'] = 'Aviso no encontrado o no pertenece a la empresa.';
+            }
+            break;
+
         default:
             $response['message'] = 'Acción no reconocida.';
             break;
     }
 }
 
-$conexion->close();
+    }
+} catch (Exception $e) { // Capturar cualquier excepción no manejada
+    $response['message'] = 'Error interno del servidor: ' . $e->getMessage();
+} finally {
+    if (isset($conexion) && $conexion) {
+        $conexion->close();
+    }
+}
 
 echo json_encode($response);
 

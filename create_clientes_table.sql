@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS clientes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    telefono VARCHAR(20) UNIQUE NOT NULL,
+    dni_nie VARCHAR(20) UNIQUE,
+    direccion VARCHAR(255),
+    email VARCHAR(255),
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
+);

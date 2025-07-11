@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Finanzas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header>
+        <h1>Módulo de Finanzas</h1>
+        <div class="container mt-3 mb-3">
+            <a href="facturas.html" class="btn btn-primary me-2">Crear Factura</a>
+            <a href="albaranes.html" class="btn btn-primary me-2">Albaranes</a>
+            <a href="presupuestos.html" class="btn btn-primary me-2">Presupuestos</a>
+            <button class="btn btn-success" id="btn-nuevo-cliente">Nuevo Cliente</button>
+        </div>
+    </header>
+
+    <main id="main-finanzas">
+        <!-- Aquí irá el contenido principal del módulo -->
+        <h2>Registros Financieros</h2>
+        
+                <!-- Formulario para añadir nuevos registros -->
+        <form id="form-finanzas" enctype="multipart/form-data">
+            <h3>Añadir Nuevo Registro</h3>
+            <select name="tipo" required>
+                <option value="ingreso">Ingreso</option>
+                <option value="gasto">Gasto</option>
+            </select>
+            <input type="text" name="descripcion" placeholder="Descripción" required>
+            <input type="number" step="0.01" name="monto" placeholder="Monto" required>
+            <input type="date" name="fecha" required>
+            <input type="file" name="fotos[]" multiple>
+            <button type="submit">Guardar Registro</button>
+        </form>
+
+
+                        <div id="descarga-container">
+            <h3>Descargar Liquidación Trimestral</h3>
+            <form id="form-descarga-zip">
+                <input type="number" name="ano" placeholder="Año" value="2025" required>
+                <select name="trimestre" required>
+                    <option value="1">1er Trimestre (Ene-Mar)</option>
+                    <option value="2">2º Trimestre (Abr-Jun)</option>
+                    <option value="3">3er Trimestre (Jul-Sep)</option>
+                    <option value="4">4º Trimestre (Oct-Dic)</option>
+                </select>
+                <button type="submit">Descargar ZIP</button>
+            </form>
+        </div>
+
+        <!-- Tabla para mostrar los registros -->
+        <div id="tabla-finanzas-container">
+            <h3>Historial de Registros</h3>
+            <table id="tabla-finanzas">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Fotos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas se insertarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+
+    </main>
+
+    <section class="container mt-5">
+        <h2>Buscar Cliente y Historial</h2>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="inputBuscarCliente" placeholder="Buscar por Teléfono o DNI/NIE">
+            <button class="btn btn-outline-secondary" type="button" id="btnBuscarCliente">Buscar</button>
+        </div>
+
+        <div id="resultadoBusquedaCliente" class="card p-3" style="display: none;">
+            <h4>Detalles del Cliente</h4>
+            <p><strong>Nombre:</strong> <span id="clienteDetalleNombre"></span></p>
+            <p><strong>Teléfono:</strong> <span id="clienteDetalleTelefono"></span></p>
+            <p><strong>DNI/NIE:</strong> <span id="clienteDetalleDNI"></span></p>
+            <p><strong>Dirección:</strong> <span id="clienteDetalleDireccion"></span></p>
+            <p><strong>Email:</strong> <span id="clienteDetalleEmail"></span></p>
+
+            <h5 class="mt-4">Historial de Documentos</h5>
+            <ul class="nav nav-tabs" id="documentosTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="facturas-tab" data-bs-toggle="tab" data-bs-target="#facturas-historial" type="button" role="tab" aria-controls="facturas-historial" aria-selected="true">Facturas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="albaranes-tab" data-bs-toggle="tab" data-bs-target="#albaranes-historial" type="button" role="tab" aria-controls="albaranes-historial" aria-selected="false">Albaranes</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="presupuestos-tab" data-bs-toggle="tab" data-bs-target="#presupuestos-historial" type="button" role="tab" aria-controls="presupuestos-historial" aria-selected="false">Presupuestos</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="documentosTabContent">
+                <div class="tab-pane fade show active" id="facturas-historial" role="tabpanel" aria-labelledby="facturas-tab">
+                    <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaFacturasHistorial">
+                            <tr><td colspan="5">No hay facturas para este cliente.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="albaranes-historial" role="tabpanel" aria-labelledby="albaranes-tab">
+                    <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaAlbaranesHistorial">
+                            <tr><td colspan="4">No hay albaranes para este cliente.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="presupuestos-historial" role="tabpanel" aria-labelledby="presupuestos-tab">
+                    <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Monto Estimado</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPresupuestosHistorial">
+                            <tr><td colspan="5">No hay presupuestos para este cliente.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal para Nuevo Cliente -->
+    <div class="modal fade" id="nuevoClienteModal" tabindex="-1" aria-labelledby="nuevoClienteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nuevoClienteModalLabel">Registrar Nuevo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevoCliente">
+                        <div class="mb-3">
+                            <label for="clienteNombre" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="clienteNombre" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clienteTelefono" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="clienteTelefono" name="telefono" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clienteDNI" class="form-label">DNI/NIE (Opcional)</label>
+                            <input type="text" class="form-control" id="clienteDNI" name="dni_nie">
+                        </div>
+                        <div class="mb-3">
+                            <label for="clienteDireccion" class="form-label">Dirección (Opcional)</label>
+                            <input type="text" class="form-control" id="clienteDireccion" name="direccion">
+                        </div>
+                        <div class="mb-3">
+                            <label for="clienteEmail" class="form-label">Email (Opcional)</label>
+                            <input type="email" class="form-control" id="clienteEmail" name="email">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/finanzas.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

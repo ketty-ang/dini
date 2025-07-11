@@ -180,7 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 detalleAviso.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3>Detalles del Aviso #${aviso.id}</h3>
-                        <button class="btn btn-secondary btn-sm" id="btnEditarAviso">Editar</button>
+                        <div>
+                            <button class="btn btn-secondary btn-sm me-2" id="btnEditarAviso">Editar</button>
+                            ${aviso.estado === 'realizado' || aviso.estado === 'presupuestado' ? `<button class="btn btn-info btn-sm me-2" id="btnPasarPresupuesto" data-id="${aviso.id}">Pasar a Presupuesto</button>` : ''}
+                            ${aviso.estado === 'realizado' || aviso.estado === 'facturado' ? `<button class="btn btn-success btn-sm" id="btnPasarFactura" data-id="${aviso.id}">Pasar a Factura</button>` : ''}
+                        </div>
                     </div>
                     <p><strong>Cliente:</strong> ${aviso.cliente}</p>
                     <p><strong>Teléfono:</strong> <a href="tel:${aviso.telefono}">${aviso.telefono}</a> <a href="https://wa.me/34${aviso.telefono}" target="_blank" class="btn btn-success btn-sm">WhatsApp</a></p>
@@ -276,6 +280,24 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert('Error de conexión al subir foto.');
                     }
                 });
+
+                // Evento para el botón "Pasar a Presupuesto"
+                const btnPasarPresupuesto = document.getElementById('btnPasarPresupuesto');
+                if (btnPasarPresupuesto) {
+                    btnPasarPresupuesto.addEventListener('click', function() {
+                        const avisoId = this.dataset.id;
+                        window.location.href = `php/api.php?action=pasarPresupuesto&aviso_id=${avisoId}`;
+                    });
+                }
+
+                // Evento para el botón "Pasar a Factura"
+                const btnPasarFactura = document.getElementById('btnPasarFactura');
+                if (btnPasarFactura) {
+                    btnPasarFactura.addEventListener('click', function() {
+                        const avisoId = this.dataset.id;
+                        window.location.href = `php/api.php?action=pasarFactura&aviso_id=${avisoId}`;
+                    });
+                }
 
             } else {
                 detalleAviso.innerHTML = `<div class="text-center text-muted mt-5">Error al cargar detalles: ${data.message}</div>`;
@@ -787,4 +809,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    const btnCerrarSesion = document.getElementById('btn-cerrar-sesion');
+
+    if (btnCerrarSesion) {
+        btnCerrarSesion.addEventListener('click', async function() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                try {
+                    const response = await fetch('php/auth.php?action=logout');
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('Sesión cerrada con éxito.');
+                        window.location.href = 'login.html'; // Redirigir al login
+                    } else {
+                        alert('Error al cerrar sesión: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                    alert('Error de conexión al intentar cerrar sesión.');
+                }
+            }
+        });
+    }
 });

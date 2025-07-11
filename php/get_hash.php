@@ -1,0 +1,1 @@
+<?php echo hash('sha256', 'KainaKaina123@'); ?>
